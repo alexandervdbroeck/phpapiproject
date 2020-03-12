@@ -27,9 +27,12 @@ class Container
 
     private $cityStorage;
 
-    public function __construct(array $configuration)
+    private $apiTokenWeather;
+
+    public function __construct(array $configuration, $apiTokenWeather)
     {
         $this->configuration = $configuration;
+        $this->apiTokenWeather = $apiTokenWeather;
     }
 
     /**
@@ -61,10 +64,18 @@ class Container
     public function getCityService()
     {
         if ($this->cityService === null) {
-            $this->cityService = new CityService($this->getDatabaseService(), $this->getCityStorage());
+            $this->cityService = new CityService($this->getDatabaseService(), $this->getCityStorage(),$this->getApiTokenWeather());
         }
 
         return $this->cityService;
+    }
+
+    /**
+     * @return mixed
+     */
+    public function getApiTokenWeather()
+    {
+        return $this->apiTokenWeather;
     }
 
     public function getDownloadService()

@@ -33,7 +33,7 @@ require_once $_root_folder . "/lib/passwd.php";
 session_start();
 $_SESSION["head_printed"] = false;
 
-$container = new Container($connectionData);
+$container = new Container($connectionData,$apiTokenWeather);
 $viewService = $container->getViewService();
 $userService = $container->getUserService();
 

@@ -3,11 +3,13 @@ class CityService
 {
     private $databaseService;
     private $cityStorage;
+    private $apiTokenWeather;
 
-    public function __construct(DatabaseService $databaseService, CityStorageInterface $cityStorage)
+    public function __construct(DatabaseService $databaseService, CityStorageInterface $cityStorage, $apiTokenWeather)
     {
         $this->databaseService = $databaseService;
         $this->cityStorage = $cityStorage;
+        $this->apiTokenWeather = $apiTokenWeather;
     }
 
     /**
@@ -47,11 +49,17 @@ class CityService
     private function createCityFromData(array $cityData)
     {
         $city = new City();
+        // get the weather data
+        $weather = $this->apiCityCallGetWeather($cityData['img_api']);
+//        echo $cityData['img_api'];
+//        die;
         $city->setId($cityData['img_id']);
         $city->setFileName($cityData['img_filename']);
         $city->setTitle($cityData['img_title']);
         $city->setWidth($cityData['img_width']);
         $city->setHeight($cityData['img_height']);
+        $city->setTemprature($weather['temp']);
+        $city->setWeatherDescription($weather['description']);
 
         return $city;
     }
@@ -89,6 +97,21 @@ class CityService
         //print $sql;
         header("Location: $new_url");
 
+    }
+    public function apiCityCallGetWeather($city)
+    {
+
+        // get the api url, with the city and token from weather service
+        $curl = curl_init("http://api.openweathermap.org/data/2.5/weather?q=".$city."&units=metric&".$this->apiTokenWeather);
+        curl_setopt_array($curl, array(CURLOPT_RETURNTRANSFER => true));
+        $answer = curl_exec($curl);
+        // clean up curl resource
+        curl_close($curl);
+        $weatherJson =  json_decode($answer, true);
+        //get the temperature and description
+        $weather["temp"] = ceil($weatherJson['main']['temp_max']);
+        $weather["description"] = $weatherJson['weather'][0]['description'];
+        return $weather;
     }
 
 
