@@ -115,6 +115,12 @@ class ViewService
     public function replaceCities( $cities, $template_html )
     {
         $returnval = "";
+        global $container;
+        $UserService = $container->getUserService();
+        $user = $UserService->loadUserFromId($_SESSION['usr_id']);
+        $readOnly = " ";
+        if($user->getAdminPower() > 50 &&  $user->doesThisUserHaveAdminRigths()) $readOnly = "readonly";
+
 
         foreach ( $cities as $city )
         {
@@ -126,7 +132,7 @@ class ViewService
             $content = str_replace("@@img_height@@", $city->getHeight(), $content);
             $content = str_replace("@@temp@@", $city->getTemprature(), $content);
             $content = str_replace("@@disc@@", $city->getWeatherDescription(), $content);
-
+            $content = str_replace("@@readonly@@", $readOnly,$content );
             $returnval .= $content;
         }
         return $returnval;
