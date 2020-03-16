@@ -20,4 +20,4 @@ RewriteCond %{QUERY_STRING} !.*no_re_dir.*$ [NC]
 
 
 # Redirect everything else to index.php
-RewriteRule .* testApi.php [L]
+#RewriteRule .* testApi.php [L]

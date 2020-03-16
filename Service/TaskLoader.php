@@ -42,7 +42,7 @@ class TaskLoader
     /**
      * @return array
      */
-    private function queryForTasks()
+    public function queryForTasks()
     {
         $taskArray = $this->databaseService->getData('SELECT * FROM taak');
         return $taskArray;
@@ -65,6 +65,7 @@ class TaskLoader
 
         return $tasks;
     }
+
 
 
 
