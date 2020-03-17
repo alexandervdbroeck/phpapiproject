@@ -13,6 +13,8 @@ class Response
     /**
      * @return mixed
      */
+
+
     public function getsuccess()
     {
         return $this->success;

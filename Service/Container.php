@@ -29,6 +29,8 @@ class Container
 
     private $apiTokenWeather;
 
+    private $response;
+
     public function __construct(array $configuration, $apiTokenWeather)
     {
         $this->configuration = $configuration;
@@ -68,6 +70,15 @@ class Container
         }
 
         return $this->cityService;
+    }
+
+    public function getResponse()
+    {
+        if ($this->response === null) {
+            $this->response = new Response();
+        }
+
+        return $this->response;
     }
 
     /**
@@ -126,7 +137,7 @@ class Container
     public function getTaskLoader()
     {
         if ($this->taskLoader === null) {
-            $this->taskLoader = new TaskLoader($this->getDatabaseService());
+            $this->taskLoader = new TaskLoader($this->getDatabaseService(),$this->getResponse());
         }
 
         return $this->taskLoader;
