@@ -8,7 +8,7 @@ require_once "../lib/autoload.php";
 
 
 if($_SERVER['REQUEST_METHOD'] == 'GET'){
-    $response = new Response();
+    $response = new ApiController();
     $response->setsuccess(true);
     $response->setHttpStatusCode(500);
     $response->addMessage('joepie');

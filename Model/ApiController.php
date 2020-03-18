@@ -1,7 +1,7 @@
 <?php
 
 
-class Response
+class ApiController
 {
     private $success;
     private $httpStatusCode;
@@ -141,6 +141,38 @@ class Response
 
         echo json_encode($this->responseData);
     }
+
+    public function getJsonFromApiRequest($method)
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Methods: ".$method);
+        header("Access-Control-Max-Age: 3600");
+        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+        $data = json_decode(file_get_contents("php://input"));
+        return $data;
+        if(isset($data))$data = false;
+        return $data;
+    }
+
+    public function sendError($httpStatusCode,$message,$data= false)
+    {
+        $this->setsuccess(false);
+        $this->setHttpStatusCode($httpStatusCode);
+        if($data) $this->setData($data);
+        $this->addMessage($message);
+        $this->send();
+    }
+
+    public function sendSuccess($message, $data = false)
+    {
+        $this->setsuccess(true);
+        $this->setHttpStatusCode(200);
+        if($data) $this->setData($data);
+        $this->addMessage($message);
+        $this->send();
+    }
+
 
 
     
