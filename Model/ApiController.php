@@ -108,11 +108,22 @@ class ApiController
         $this->responseData = $responseData;
     }
 
+    public function checkAuthentication($user,$pw)
+    {
+        if ($_SERVER['PHP_AUTH_USER'] !== $user OR $_SERVER['PHP_AUTH_PW'] !== $pw) {
+            //als er geen juiste credentials doorgegeven worden, afbreken met code 401 Unauthorized
+            $this->sendError(401,"auth fail");
+            return false;
+        }
+        return true;
+    }
+
     public function send()
     {
 
         // data type
         header('Content-Type: application/json;charset=utf-8');
+
 
         // use a cache of 60 sec.
         if($this->toCache)
