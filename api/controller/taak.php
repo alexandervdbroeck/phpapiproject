@@ -7,6 +7,7 @@ $taskloader = $container->getTaskLoader();
 switch ($requestMethod)
 {
     case "PUT":
+        $taskloader->procesApiUpdateTaskById($taakId);
 
         break;
 
@@ -15,6 +16,7 @@ switch ($requestMethod)
         break;
 
     case "DELETE":
-
+        $taskloader->procesApiDeleteTaskById($taakId);
+        break;
 
 }

@@ -3,12 +3,12 @@
 class TaskLoader
 {
     private $databaseService;
-    private $response;
+    private $apiController;
 
-    public function __construct(DatabaseService $databaseService, Response $response)
+    public function __construct(DatabaseService $databaseService, ApiController $apiController)
     {
         $this->databaseService = $databaseService;
-        $this->response = $response;
+        $this->apiController = $apiController;
     }
 
     /**
@@ -81,17 +81,12 @@ class TaskLoader
 
         $tasks = $this->queryForTasks();
         if(!isset($tasks)){
-            $this->response->setsuccess(false);
-            $this->response->setHttpStatusCode(404);
-            $this->response->addMessage('no tasks Where found');
+            $this->apiController->sendError(404,'no tasks Where found');
+
         }else
         {
             $nrOfTasks = count($tasks);
-            $this->response->setsuccess(true);
-            $this->response->setHttpStatusCode(200);
-            $this->response->addMessage('there where '.$nrOfTasks.' tasks found');
-            $this->response->setData($tasks);
-            $this->response->send();
+            $this->apiController->sendSuccess('there where '.$nrOfTasks.' tasks found',$tasks);
         }
     }
 
@@ -102,41 +97,80 @@ class TaskLoader
         $nrOfTasks = count($task);
         if(!isset($nrOfTasks))
         {
-            $this->response->setsuccess(false);
-            $this->response->setHttpStatusCode(404);
-            $this->response->addMessage('the task with id:'.$taakId.' was not found');
+            $this->apiController->sendError(404,'the task with id:'.$taakId.' was not found');
 
         }else
         {
-            $this->response->setsuccess(true);
-            $this->response->setHttpStatusCode(200);
-            $this->response->setData($task);
-            $this->response->addMessage('task with id:'.$taakId.' is loaded');
-            $this->response->send();
+            $this->apiController->sendSuccess('task with id:'.$taakId.' is loaded');
+
         }
 
     }
 
     public function procesApiCreateNewtask()
     {
-        $taskDate = $_POST['taa_datum'];
-        $taskOmschr = $_POST['taa_omschr'];
-        if($this->databaseService->executeSQL("INSERT INTO taak SET taa_datum=' ". $taskDate."' , taa_omschr= '".$taskOmschr."'"))
+
+        $data = $this->apiController->getJsonFromApiRequest("POST");
+        if($data)
         {
-            $this->response->setsuccess(true);
-            $this->response->setHttpStatusCode(200);
-            $this->response->addMessage('the task is loaded in the database');
-            $this->response->send();
+            if($this->databaseService->executeSQL("INSERT INTO taak SET taa_datum=' ". $data->taa_datum."' , taa_omschr= '".$data->taa_omschr."'"))
+            {
+                $this->apiController->sendSuccess('the task is loaded in the database');
+
+            }else
+            {
+                $this->apiController->sendError(422,'there was a error in loading your task');
+            }
+        }else
+        {
+            $this->apiController->sendError(422,'Can not read your Json from your api request');
+
+        }
+
+    }
+
+    public function procesApiDeleteTaskById($taakId)
+    {
+        $task = $this->getTaskById($taakId);
+        if(isset($task))
+        {
+            if($this->databaseService->executeSQL("DELETE FROM taak WHERE taa_id =".$taakId))
+            {
+                $this->apiController->sendSuccess('your task with id:'.$taakId." is deleted");
+
+            }else
+            {
+                $this->apiController->sendError(422,'there was a error in deleting your task');
+
+            }
+        }else
+        {
+            $this->apiController->sendError(422,'the task with id'.$taakId." does not exist");
+
+        }
+
+    }
+
+    public function procesApiUpdateTaskById($taakId)
+    {
+
+        $data = $this->apiController->getJsonFromApiRequest("POST");
+
+        // get posted data
+
+        if($this->databaseService->executeSQL("UPDATE taak SET taa_datum ='".$data->taa_datum."' , taa_omschr = '".$data->taa_omschr."' WHERE taa_id = ".$taakId))
+        {
+            $task = $this->getTaskById($taakId);
+            $this->apiController->sendSuccess("your task with id:".$taakId."is updated", $task);
+
 
         }else
         {
+            $this->apiController->sendError(422,'there was a error updating your task');
 
-            $this->response->setsuccess(false);
-            $this->response->setHttpStatusCode(422);
-            $this->response->addMessage('there was a error in loading your task');
-            $this->response->send();
         }
     }
+
 
 
 }
