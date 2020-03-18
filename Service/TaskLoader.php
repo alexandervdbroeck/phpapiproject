@@ -18,6 +18,7 @@ class TaskLoader
 
     public function getTaskById($id)
     {
+
         $task = $this->databaseService->getData('SELECT * FROM taak where taa_id ='.$id);
         return $task[0];
     }
