@@ -102,7 +102,7 @@ class TaskLoader
 
         }else
         {
-            $this->apiController->sendSuccess('task with id:'.$taakId.' is loaded');
+            $this->apiController->sendSuccess('task with id:'.$taakId.' is loaded',$task);
 
         }
 
