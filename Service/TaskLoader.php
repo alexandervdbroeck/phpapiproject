@@ -55,7 +55,7 @@ class TaskLoader
      */
     public function queryForTasks()
     {
-        $taskArray = $this->databaseService->getData('SELECT * FROM taak');
+        $taskArray = $this->databaseService->getData('SELECT * FROM taak order by taa_id desc');
         return $taskArray;
     }
 
@@ -77,6 +77,8 @@ class TaskLoader
         return $tasks;
     }
 
+/*------------------------------------------Api CALL Methods----------------------------------------------*/
+
     public function procesApiGetAllTasks()
     {
 
@@ -91,32 +93,37 @@ class TaskLoader
         }
     }
 
+
     public function procesApiGetTaskById($taakId)
     {
-
+        // init the headers
+        $this->apiController->initApi("GET");
+        // get the task and put in json
         $task = $this->getTaskById($taakId);
-        $nrOfTasks = count($task);
-        if(!isset($nrOfTasks))
-        {
-            $this->apiController->sendError(404,'the task with id:'.$taakId.' was not found');
 
+        if(!isset($task))
+        {
+            // if there are no tasks
+            $this->apiController->sendError(404,'the task with id:'.$taakId.' was not found');
         }else
         {
             $this->apiController->sendSuccess('task with id:'.$taakId.' is loaded',$task);
-
         }
 
     }
 
     public function procesApiCreateNewtask()
     {
-
-        $data = $this->apiController->getJsonFromApiRequest("POST");
+        // init the headers
+//        $this->apiController->initApi("POST");
+        // Get the data from the Json
+        $data = $this->apiController->getDataInJsonFromApiRequest();
         if($data)
         {
             if($this->databaseService->executeSQL("INSERT INTO taak SET taa_datum=' ". $data->taa_datum."' , taa_omschr= '".$data->taa_omschr."'"))
             {
-                $this->apiController->sendSuccess('the task is loaded in the database');
+
+                $this->apiController->sendSuccess('the task is loaded in the database', $this->queryForTasks());
 
             }else
             {
@@ -132,12 +139,16 @@ class TaskLoader
 
     public function procesApiDeleteTaskById($taakId)
     {
+        // init the headers
+        $this->apiController->initApi("DELETE");
+        // check if task exists
         $task = $this->getTaskById($taakId);
         if(isset($task))
         {
             if($this->databaseService->executeSQL("DELETE FROM taak WHERE taa_id =".$taakId))
             {
-                $this->apiController->sendSuccess('your task with id:'.$taakId." is deleted");
+
+                $this->apiController->sendSuccess('your task with id:'.$taakId." is deleted",$this->queryForTasks());
 
             }else
             {
@@ -146,6 +157,7 @@ class TaskLoader
             }
         }else
         {
+            // The task was not found
             $this->apiController->sendError(422,'the task with id'.$taakId." does not exist");
 
         }
@@ -155,14 +167,16 @@ class TaskLoader
     public function procesApiUpdateTaskById($taakId)
     {
 
-        $data = $this->apiController->getJsonFromApiRequest("POST");
-
+        // init the headers
+        $this->apiController->initApi("PUT");
+        // Get the data from the Json
+        $data = $this->apiController->getDataInJsonFromApiRequest();
         // get posted data
 
         if($this->databaseService->executeSQL("UPDATE taak SET taa_datum ='".$data->taa_datum."' , taa_omschr = '".$data->taa_omschr."' WHERE taa_id = ".$taakId))
         {
-            $task = $this->getTaskById($taakId);
-            $this->apiController->sendSuccess("your task with id:".$taakId."is updated", $task);
+            $returndata  = $this->queryForTasks();
+            $this->apiController->sendSuccess("your task with id:".$taakId."is updated",$returndata);
 
 
         }else

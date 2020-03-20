@@ -13,7 +13,14 @@ class ApiController
     /**
      * @return mixed
      */
-
+    public function initApi($method)
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Content-Type: application/json; charset=UTF-8");
+        header("Access-Control-Allow-Methods: $method");
+        header("Access-Control-Max-Age: 3600");
+        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
+}
 
     public function getsuccess()
     {
@@ -110,11 +117,10 @@ class ApiController
 
     public function checkAuthentication($user,$pw)
     {
-        if ($_SERVER['PHP_AUTH_USER'] !== $user OR $_SERVER['PHP_AUTH_PW'] !== $pw) {
-            //als er geen juiste credentials doorgegeven worden, afbreken met code 401 Unauthorized
-            $this->sendError(401,"auth fail");
-            return false;
-        }
+//        if ($_SERVER['PHP_AUTH_USER'] !== $user OR $_SERVER['PHP_AUTH_PW'] !== $pw) {
+//            $this->sendError(401,"auth fail");
+//            return false;
+//        }
         return true;
     }
 
@@ -153,16 +159,9 @@ class ApiController
         echo json_encode($this->responseData);
     }
 
-    public function getJsonFromApiRequest($method)
+    public function getDataInJsonFromApiRequest()
     {
-        header("Access-Control-Allow-Origin: *");
-        header("Content-Type: application/json; charset=UTF-8");
-        header("Access-Control-Allow-Methods: ".$method);
-        header("Access-Control-Max-Age: 3600");
-        header("Access-Control-Allow-Headers: Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With");
         $data = json_decode(file_get_contents("php://input"));
-        return $data;
-        if(isset($data))$data = false;
         return $data;
     }
 
