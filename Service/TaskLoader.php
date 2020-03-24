@@ -89,6 +89,7 @@ class TaskLoader
         }else
         {
             $nrOfTasks = count($tasks);
+            $this->apiController->setNbrOfTasks($nrOfTasks);
             $this->apiController->sendSuccess('there where '.$nrOfTasks.' tasks found',$tasks);
         }
     }
@@ -118,22 +119,27 @@ class TaskLoader
 //        $this->apiController->initApi("POST");
         // Get the data from the Json
         $data = $this->apiController->getDataInJsonFromApiRequest();
-        if($data)
-        {
-            if($this->databaseService->executeSQL("INSERT INTO taak SET taa_datum=' ". $data->taa_datum."' , taa_omschr= '".$data->taa_omschr."'"))
+        if($this->checkTaskData($data)){
+            if($data)
             {
+                if($this->databaseService->executeSQL("INSERT INTO taak SET taa_datum=' ". $data->taa_datum."' , taa_omschr= '".$data->taa_omschr."'"))
+                {
 
-                $this->apiController->sendSuccess('the task is loaded in the database', $this->queryForTasks());
+                    $this->apiController->sendSuccess('the task is loaded in the database', $this->queryForTasks());
 
+                }else
+                {
+                    $this->apiController->sendError(422,'there was a error in loading your task');
+                }
             }else
             {
-                $this->apiController->sendError(422,'there was a error in loading your task');
-            }
-        }else
-        {
-            $this->apiController->sendError(422,'Can not read your Json from your api request');
+                $this->apiController->sendError(422,'Can not read your Json from your api request');
 
+            }
+        }else{
+            $this->apiController->sendError(422,'your task data is invalid');
         }
+
 
     }
 
@@ -184,6 +190,13 @@ class TaskLoader
             $this->apiController->sendError(422,'there was a error updating your task');
 
         }
+    }
+
+    private function checkTaskData($data){
+        $checksOk = false;
+        $checksOk = DateTime::createFromFormat("Y-m-d", $data->taa_datum);
+        $checksOk = strlen($data->taa_omschr) <200? true: false;
+        return $checksOk;
     }
 
 

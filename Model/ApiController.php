@@ -9,6 +9,23 @@ class ApiController
     private $data;
     private $toCache = false;
     private $responseData = array();
+    private $nbrOfTasks = 0;
+
+    /**
+     * @return int
+     */
+    public function getNbrOfTasks()
+    {
+        return $this->nbrOfTasks;
+    }
+
+    /**
+     * @param int $nbrOfTasks
+     */
+    public function setNbrOfTasks($nbrOfTasks)
+    {
+        $this->nbrOfTasks = $nbrOfTasks;
+    }
 
     /**
      * @return mixed
@@ -147,13 +164,16 @@ class ApiController
             $this->responseData['success'] = false;
             $this->addMessage("Response creation error");
             $this->responseData['messages']= $this->messages;
+            $this->responseData['nbrOfTasks'] = $this->nbrOfTasks;
         }else
         {
             http_response_code($this->httpStatusCode);
             $this->responseData['statusCode'] = $this->httpStatusCode;
             $this->responseData['success'] = $this->success;
+            $this->responseData['nbrOfTasks'] = $this->nbrOfTasks;
             $this->responseData['message'] = $this->messages;
             $this->responseData['data'] = $this->data;
+
         }
 
         echo json_encode($this->responseData);
