@@ -3,6 +3,6 @@ php_flag display_errors on
 RewriteEngine On
 RewriteCond %{REQUEST_FILENAME} !-d
 RewriteCond %{REQUEST_FILENAME} !-f
-RewriteRule ^taak/([0-9]+)$ controller/taak.php?taakid=$1 [L]
-RewriteRule ^taken$ controller/taken.php [L]
+RewriteRule ^taak/([0-9]+)$ controller/index.php/$1 [L]
+RewriteRule ^taken$ controller/index.php [L]
 
